@@ -1,26 +1,61 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import ReactDOM from 'react-dom';
+import { Editor, EditorState, RichUtils } from 'draft-js';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+import './test.scss';
+import './styles/main.scss';
+
+import Test from './Test';
+
+class MyEditor extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { editorState: EditorState.createEmpty() };
+    this.onChange = (editorState) => this.setState({ editorState });
+    this.handleKeyCommand = this.handleKeyCommand.bind(this);
+  }
+  handleKeyCommand(command, editorState) {
+    const newState = RichUtils.handleKeyCommand(editorState, command);
+    if (newState) {
+      this.onChange(newState);
+      return 'handled';
+    }
+    return 'not-handled';
+  }
+  _onBoldClick() {
+    this.onChange(RichUtils.toggleInlineStyle(this.state.editorState, 'BOLD'));
+  }
+
+  render() {
+    return (
+      <div>
+        <button onClick={this._onBoldClick.bind(this)}>Bold</button>
+        <Editor
+          editorState={this.state.editorState}
+          handleKeyCommand={this.handleKeyCommand}
+          onChange={this.onChange}
+        />
+      </div>
+    );
+  }
 }
 
-export default App;
+// const App = () => {
+//   const [body, setBody] = useState('');
+//   const [editorState, setEditorState] = React.useState(
+//     EditorState.createEmpty()
+//   )
+
+//   return (
+//     <div className="App">
+//         <Editor 
+//           editorState={editorState}
+//           onChange={editorState => setEditorState(editorState)}
+//         />
+
+//     </div>
+//   );
+// }
+
+
+export default MyEditor;
